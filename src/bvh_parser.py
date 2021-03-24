@@ -98,8 +98,8 @@ class BVHParser():
     def get_informations(self):
         joints = [joint for _, joint in enumerate(self.joints) if not joint.endswith("_end")]
         print("[+] - BVH Information:")
-        print("\tNumber of joints: ", len(joints))
-        print("\tNumber of frames: ", self.nb_frames)
+        print("Number of joints: ", len(joints))
+        print("Number of frames: ", self.nb_frames)
 
     def parse(self, path):
         hierarchy, motion = self.parser.scan(path)
