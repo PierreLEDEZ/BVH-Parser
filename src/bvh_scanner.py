@@ -1,6 +1,9 @@
 import re
 
 class BVHScanner():
+    """
+        Class used to scan bvh files using regex
+    """
 
     def __init__(self):
         self.scanner = re.Scanner([

@@ -3,7 +3,14 @@ import matplotlib.pyplot as plt
 from .bvh_scanner import BVHScanner
 
 class Joint():
+    """
+        This class is the representation of a joint
+        It contains informations about its name, parent, positions according to its parent and index in skeleton hierarchy
+    """
+
     def __init__(self, name, parent, index_in_hierarchy=None):
+        """ Initialize the joint object with its name, parent joint and its index in the hierarchy (if known) """
+
         self.name = name
         self.parent = parent
         self.local_offset = np.zeros(3)
@@ -13,14 +20,22 @@ class Joint():
         self.index = index_in_hierarchy
 
     def add_child(self, joint):
+        """ Add child joint to its children list """
         self.children.append(joint)
 
     def add_channels(self, channel):
+        """ Add channel to its channels list """
         self.channels.append(channel)
 
 
 class BVHParser():
+    """
+        This class is in charge of parsing BVH files
+    """
+
     def __init__(self):
+        """ Initialize the BVHParser """
+
         self.parser = BVHScanner()
         self.joints = {}
         self.root = None
@@ -96,17 +111,33 @@ class BVHParser():
             return "R" # 3 Channels for rotation coordinates
 
     def get_informations(self):
+        """ Retrieve informations about the parsed bvh file and print them """
+
         joints = [joint for _, joint in enumerate(self.joints) if not joint.endswith("_end")]
         print("[+] - BVH Information:")
         print("Number of joints: ", len(joints))
         print("Number of frames: ", self.nb_frames)
 
     def parse(self, path):
+        """
+            Parse the given BVH file
+
+            :param path: path of the bvh file we want to parse
+            :type path: string
+        """
+
         hierarchy, motion = self.parser.scan(path)
         self.parse_hierarchy(hierarchy)
         self.parse_motion(motion)
 
     def parse_hierarchy(self, bvh):
+        """
+            Parse the hierarchy of the previously scanned file and create joints object
+
+            :param bvh: previously scanned hierarchy (first part of a BVH file)
+            :type bvh: list of tuples
+        """
+
         temp_stack = []
         nb_line = 0
         joint_created = 0
@@ -159,9 +190,23 @@ class BVHParser():
             nb_line += 1
 
     def get_joints_list(self):
+        """
+            Get the list of joints object representing usefull joints, exclude joint with _end if their names
+
+            :return: list of joints object
+            :rtype: list of Joint
+        """
+
         return [self.joints[value] for _, value in enumerate(self.joints) if not value.endswith("_end")]
 
     def parse_motion(self, bvh):
+        """
+            Parse the motion part of the previously scanned BVH file and keep informations of each frame.
+
+            :param bvh: previously scanned motion part (2nd part of a BVH file)
+            :type bvh: string
+        """
+
         motion_part = bvh.split("\n")
 
         frame = 0
