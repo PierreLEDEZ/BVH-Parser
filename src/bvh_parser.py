@@ -67,6 +67,7 @@ class BVHParser():
         nb_line = 0
         joint_created = 0
         
+        # If first element of hierarchy part is not HIERARCHY keyword, stop the process, there is a deformity
         if bvh[nb_line] != ("IDENTIFIER", "HIERARCHY"):
             return None
         nb_line += 1
@@ -203,6 +204,9 @@ class BVHParser():
     def plot_joint(self, joint):
         """
             Get informations about given joint's children and append them to the list of coordinates to plot
+        
+            :param joint: joint to plot
+            :type joint: Joint Object
         """
         for child in joint.children:
             if child.name.endswith("_end"):

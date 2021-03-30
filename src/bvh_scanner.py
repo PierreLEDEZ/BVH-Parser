@@ -21,6 +21,8 @@ class BVHScanner():
             raw_content = file.read()
 
         hierarchy, motion = raw_content.split("MOTION")
+        # scan method of re.Scanner returns an array of matched elements
+        # Example: CHANNELS 6 12.000 .... <=> [("IDENTIFIER", "CHANNELS"), ("DIGIT", "6"), ("DIGIT", "12.000"), ...]
         tokens_hierarchy, _ = self.scanner.scan(hierarchy)
         return tokens_hierarchy, motion 
 
