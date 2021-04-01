@@ -63,7 +63,9 @@ class BVHParser():
             :type bvh: list of tuples
         """
 
+        # this stack will temporarily contains Joint objects, when all infos about one of them is read, remove it from stack
         temp_stack = []
+        
         nb_line = 0
         joint_created = 0
         
@@ -73,44 +75,72 @@ class BVHParser():
         nb_line += 1
 
         while nb_line != len(bvh):
+            
+            # If current word is ROOT or JOINT
             if bvh[nb_line] == ("IDENTIFIER", "ROOT") or bvh[nb_line] == ("IDENTIFIER", "JOINT"):
+                
+                # If word isn't root, get the joint parent (last element of the stack)
                 parent = temp_stack[-1] if bvh[nb_line][1] == "JOINT" else None
+                
+                # Read next element, name of joint or root's name and create corresponding Joint Object
                 nb_line += 1
                 joint = Joint(bvh[nb_line][1], parent, joint_created)
                 joint_created += 1
+
+                # Save the created joint in the joints dictionnary
                 self.joints[bvh[nb_line][1]] = joint
+
+                # If this joint is not the root, add this joint to its parent's children or set root
                 if parent != None:
                     parent.add_child(joint)
                 else:
                     self.root = joint
+                
                 temp_stack.append(joint)
 
+            # If current word is CHANNELS
             elif bvh[nb_line] == ("IDENTIFIER", "CHANNELS"):
+                
+                # Read number of channels
                 nb_line += 1
                 if bvh[nb_line][0] != "DIGIT":
                     raise Exception
+                
+                # Read the given channel names and add them to the list of channels of the last element of the stack
                 for i in range(int(bvh[nb_line][1])):
                     nb_line += 1
                     temp_stack[-1].add_channels(bvh[nb_line][1])
             
+            # If current word is OFFSET
             elif bvh[nb_line] == ("IDENTIFIER", "OFFSET"):
                 local_offset = np.zeros(3, dtype=np.float64)
+
+                # Read the three given offset as local_offset
                 for i in range(3):
                     nb_line += 1
                     local_offset[i] = np.float64(bvh[nb_line][1])
                 temp_stack[-1].local_offset = local_offset
+
+                # Compute global offset of the current joint with its parent one, except if this is root.
+                # In that case, root's global offset is its local offset
                 if temp_stack[-1].parent != None:
                     temp_stack[-1].global_offset = temp_stack[-1].parent.global_offset + local_offset
                 else:
                     temp_stack[-1].global_offset = local_offset 
             
+            # If current word is End
             elif bvh[nb_line] == ("IDENTIFIER", "End"):
+
+                # Create an end site joint after current joint
                 joint = Joint(temp_stack[-1].name+"_end", temp_stack[-1])
                 temp_stack[-1].add_child(joint)
                 temp_stack.append(joint)
                 self.joints[joint.name] = joint
             
+            # If current element is a }
             elif bvh[nb_line][0] == "CLOSE":
+
+                # Parser read all infos on the current joint, so remove it from the stack
                 temp_stack.pop()
             
             nb_line += 1
