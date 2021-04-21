@@ -20,11 +20,21 @@ class Joint():
         self.index = index_in_hierarchy
 
     def add_child(self, joint):
-        """ Add child joint to its children list """
+        """
+            Add child joint to its children list
+
+            :param joint: Joint to add to children list
+            :type joint: Joint Object
+        """
         self.children.append(joint)
 
     def add_channels(self, channel):
-        """ Add channel to its channels list """
+        """
+            Add channel to its channels list
+
+            :param channel: Channel to add to channels list
+            :type channel: string
+        """
         self.channels.append(channel)
 
 
